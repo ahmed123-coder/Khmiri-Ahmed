@@ -13,7 +13,7 @@ export const Projects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://ahmedkhmiri.onrender.com/api/project");
+        const response = await axios.get("http://localhost:3000/api/project");
         setProjects(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);

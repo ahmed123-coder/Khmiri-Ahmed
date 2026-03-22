@@ -13,7 +13,7 @@ export const ProjectCard = ({ title, description, imgUrl }) => {
   // التحقق إذا كان يحتوي على http
   const fullUrl = cleanedPath.startsWith('http')
     ? cleanedPath
-    : `https://ahmedkhmiri.onrender.com/${cleanedPath}`;
+    : `http://localhost:3000/${cleanedPath}`;
 
   console.log("✅ Final imgUrlcard path:", fullUrl);
 

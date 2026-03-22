@@ -16,7 +16,7 @@ const ManageProjects = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("https://ahmedkhmiri.onrender.com/api/project");
+      const res = await axios.get("http://localhost:3000/api/project");
       setProjects(res.data);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -32,11 +32,11 @@ const ManageProjects = () => {
 
     try {
       if (editingId) {
-        await axios.put(`https://ahmedkhmiri.onrender.com/api/project/${editingId}`, formData, {
+        await axios.put(`http://localhost:3000/api/project/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
       } else {
-        await axios.post("https://ahmedkhmiri.onrender.com/api/project", formData, {
+        await axios.post("http://localhost:3000/api/project", formData, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
       }
@@ -52,7 +52,7 @@ const ManageProjects = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://ahmedkhmiri.onrender.com/api/project/${id}`, {
+      await axios.delete(`http://localhost:3000/api/project/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       fetchProjects();
@@ -84,7 +84,7 @@ const ManageProjects = () => {
               <div className="project-info">
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
-                {project.image && <img src={`https://ahmedkhmiri.onrender.com/${project.image}`} alt={project.title} className="project-image" />}
+                {project.image && <img src={`http://localhost:3000/${project.image}`} alt={project.title} className="project-image" />}
               </div>
               <div>
                 <button onClick={() => handleEdit(project)} className="btn btn-edit">Edit</button>

@@ -2,7 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 // Connect to MongoDB without deprecated options ArASS3uL4BvFZvj2  achrafkhmirii
-mongoose.connect("mongodb+srv://achrafkhmirii:ArASS3uL4BvFZvj2@cluster0.tl8m6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("Connection error:", error));
 

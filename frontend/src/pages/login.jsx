@@ -12,7 +12,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://ahmedkhmiri.onrender.com/api/user/login', formData);
+      const response = await axios.post('http://localhost:3000/api/user/login', formData);
       localStorage.setItem('token', response.data.token);
       
       // Redirect based on role

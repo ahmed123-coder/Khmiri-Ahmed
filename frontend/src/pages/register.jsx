@@ -19,7 +19,7 @@ const Register = () => {
         throw new Error('Password must be at least 8 characters');
       }
 
-      const response = await axios.post('https://ahmedkhmiri.onrender.com/api/user/register', {
+      const response = await axios.post('http://localhost:3000/api/user/register', {
         username: formData.username,
         password: formData.password,
         role: formData.role

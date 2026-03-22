@@ -16,7 +16,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://ahmedkhmiri.onrender.com/api/site/selected");
+        const response = await axios.get("http://localhost:3000/api/site/selected");
         setSiteContent(response.data);
       } catch (error) {
         console.error("Error fetching site content:", error);
@@ -27,7 +27,7 @@ const Home = () => {
   return (
     <div className="App">
 <NavBar logo={`http://localhost:3000/${siteContent?.logoheader}`}  siteName={siteContent?.siteName}/>
-<Banner hero={siteContent?.hero} logohero={`https://ahmedkhmiri.onrender.com/${siteContent?.logohero}`}/>
+<Banner hero={siteContent?.hero} logohero={`http://localhost:3000/${siteContent?.logohero}`}/>
 <Skills />
 <Projects />
 <Contact 

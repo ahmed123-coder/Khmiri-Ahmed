@@ -3,7 +3,7 @@ import axios from "axios";
 import Sidebaradmin from "../components/sidebaradmin";
 
 const ManageUsers = () => {
-  const API_URL = "https://ahmedkhmiri.onrender.com/api/user";
+  const API_URL = "http://localhost:3000/api/user";
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({ username: "", password: "", role: "user" });
   const [editingUser, setEditingUser] = useState(null);
@@ -31,7 +31,7 @@ const ManageUsers = () => {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://ahmedkhmiri.onrender.com/api/user/register", formData, {
+      await axios.post("http://localhost:3000/api/user/register", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
