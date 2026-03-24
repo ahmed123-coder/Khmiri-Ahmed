@@ -68,21 +68,7 @@ export const Banner = ({ hero, logohero }) => {
               {({ isVisible }) =>
                 <div className={isVisible ? "banner-img animate__animated animate__zoomIn" : ""}>
                   <div className={isVisible ? "banner-img animate__animated animate__zoomIn" : ""}>
-                  {logohero && (() => {
-  console.log("قيمة logohero:", logohero);
-
-  // تنظيف المسار من الباكسلاش
-  const cleanedPath = logohero.replace(/\\/g, '/');
-
-  // التحقق إذا كان يحتوي على http
-  const fullUrl = cleanedPath.startsWith('http')
-    ? cleanedPath
-    : `http://localhost:3000/${cleanedPath}`;
-
-  console.log("✅ Final logohero path:", fullUrl);
-
-  return <img src={fullUrl} alt="Header Img" />;
-})()}
+                  {logohero && <img src={logohero} alt="Header Img" />}
 
 </div>
 

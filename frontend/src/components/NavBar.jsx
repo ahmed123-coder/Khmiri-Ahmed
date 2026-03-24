@@ -32,21 +32,7 @@ export const NavBar = ({logo, siteName}) => {
     <Navbar expand="md" className={scrolled ? "scrolled" : ""}>
       <Container>
         <Navbar.Brand href="/" className="title-web">
-          {logo && (() => {
-  console.log("قيمة logohero:", logo);
-
-  // تنظيف المسار من الباكسلاش
-  const cleanedPath = logo.replace(/\\/g, '/');
-
-  // التحقق إذا كان يحتوي على http
-  const fullUrl = cleanedPath.startsWith('http')
-    ? cleanedPath
-    : `http://localhost:3000/${cleanedPath}`;
-
-  console.log("✅ Final logohero path:", fullUrl);
-
-  return <img src={fullUrl} alt="Header Img" className="logo"/>;
-})()}
+          {logo && <img src={logo} alt="Header Img" className="logo" />}
           <span className="title">{siteName}</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav">

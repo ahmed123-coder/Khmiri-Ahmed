@@ -26,8 +26,8 @@ const Home = () => {
   }, []);
   return (
     <div className="App">
-<NavBar logo={`http://localhost:3000/${siteContent?.logoheader}`}  siteName={siteContent?.siteName}/>
-<Banner hero={siteContent?.hero} logohero={`http://localhost:3000/${siteContent?.logohero}`}/>
+<NavBar logo={siteContent?.logoheader} siteName={siteContent?.siteName}/>
+<Banner hero={siteContent?.hero} logohero={siteContent?.logohero}/>
 <Skills />
 <Projects />
 <Contact 

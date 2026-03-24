@@ -114,8 +114,8 @@ const SiteManagementPage = () => {
       logoheader: null,
       logohero: null
     });
-    setLogoheaderPreview(site.logoheader ? `http://localhost:3000/${site.logoheader}` : '');
-    setLogoheroPreview(site.logohero ? `http://localhost:3000/${site.logohero}` : '');
+    setLogoheaderPreview(site.logoheader || '');
+    setLogoheroPreview(site.logohero || '');
     setEditingId(site._id);
   };
 

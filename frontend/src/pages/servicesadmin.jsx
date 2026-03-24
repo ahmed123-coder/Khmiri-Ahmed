@@ -130,14 +130,14 @@ const ServiceManager = () => {
               </div>
               {service.image && (
                 <img
-                  src={`http://localhost:3000/${service.image}`}
+                  src={service.image}
                   alt={service.title}
                   className="service-image"
                 />
               )}
               {service.icon && (
                 <img
-                  src={`http://localhost:3000/${service.icon}`}
+                  src={service.icon}
                   alt="Icon"
                   className="service-icon"
                 />

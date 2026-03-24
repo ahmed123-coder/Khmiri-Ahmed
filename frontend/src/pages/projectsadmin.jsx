@@ -84,7 +84,7 @@ const ManageProjects = () => {
               <div className="project-info">
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
-                {project.image && <img src={`http://localhost:3000/${project.image}`} alt={project.title} className="project-image" />}
+                {project.image && <img src={project.image} alt={project.title} className="project-image" />}
               </div>
               <div>
                 <button onClick={() => handleEdit(project)} className="btn btn-edit">Edit</button>
