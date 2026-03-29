@@ -1,15 +1,15 @@
 import Sidebaradmin from '../components/sidebaradmin';
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom';
+
 const Admin = () => {
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="flex min-h-screen bg-zinc-950 text-white">
       <Sidebaradmin />
-      <div style={{ flex: 1, padding: '20px' }}>
-        <Outlet /> {/* هذا ضروري جدًا */}
-      </div>
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <Outlet />
+      </main>
     </div>
   );
 };
 
 export default Admin;
-
