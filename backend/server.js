@@ -25,12 +25,14 @@ const routerProject = require("./routes/project");
 const routerService = require("./routes/service");
 const routerSite = require("./routes/contentsite");
 const contactRouter = require("./routes/contactRouter");
+const routerSkill = require("./routes/skill");
 
 app.use("/api/user", routerUser);
 app.use("/api/project", routerProject);
 app.use("/api/service", routerService);
 app.use("/api/site", routerSite);
 app.use("/api/contact", contactRouter);
+app.use("/api/skill", routerSkill);
 
 // Health check or fallback
 app.get("/", (req, res) => {

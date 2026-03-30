@@ -5,6 +5,7 @@ import ManageProjects from "./pages/projectsadmin";
 import ManageSites from "./pages/sitecontent";
 import ManageService from "./pages/servicesadmin";
 import ManageUsers from "./pages/usersadmin";
+import ManageSkills from "./pages/skillsadmin";
 import Register from "./pages/register";
 import Login from "./pages/login";
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="ManageSites" element={<ManageSites />} />
           <Route path="ManageService" element={<ManageService />} />
           <Route path="ManageUsers" element={<ManageUsers />} />
+          <Route path="ManageSkills" element={<ManageSkills />} />
         </Route>
         
       </Routes>
