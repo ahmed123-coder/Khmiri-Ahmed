@@ -14,7 +14,7 @@ const JWT_SECRET = "your_secret_key";
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "uploads",
+    folder: "ahmed-khmiri",
     upload_preset:process.env.CLOUDINARY_UPLOAD_PRESET,
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
     transformation: [{ width: 800, crop: "limit" }],
