@@ -3,8 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const Skill = require('../models/skill');
 const User = require('../models/user');
-
-const JWT_SECRET = 'your_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 const verifyAdmin = async (req, res, next) => {
   try {

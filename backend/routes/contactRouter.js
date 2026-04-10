@@ -3,6 +3,8 @@ const nodemailer = require("nodemailer");
 const router = express.Router();
 require("dotenv").config();
 
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
+
 router.post("/", async (req, res) => {
   const { name, email, message, to , pass, user} = req.body;
 

@@ -7,14 +7,13 @@ const cloudinary = require("../cloudinaryConfig");
 const Site = require("../models/contentsite");
 const User = require("../models/user");
 
-const JWT_SECRET = "your_secret_key"; // Use environment variable in production
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
-// Cloudinary storage config
+// Cloudinary storage config — do NOT include upload_preset when using signed auth (api_key + api_secret)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "ahmed-khmiri",
-    upload_preset:process.env.CLOUDINARY_UPLOAD_PRESET,
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
     transformation: [{ width: 800, crop: "limit" }],
   },
@@ -147,23 +146,30 @@ router.put(
       const logoheader = req.files?.logoheader?.[0]?.path;
       const logohero = req.files?.logohero?.[0]?.path;
 
-      const site = await Site.findById(req.params.id);
+      // Build update object with only provided fields
+      const updateFields = {};
+      if (siteName !== undefined) updateFields.siteName = siteName;
+      if (siteDescription !== undefined) updateFields.siteDescription = siteDescription;
+      if (hero !== undefined) updateFields.hero = hero;
+      if (footer !== undefined) updateFields.footer = footer;
+      if (contactEmail !== undefined) updateFields.contactEmail = contactEmail;
+      if (emailuser !== undefined) updateFields.emailuser = emailuser;
+      if (passworduser !== undefined) updateFields.passworduser = passworduser;
+      if (logoheader) updateFields.logoheader = logoheader;
+      if (logohero) updateFields.logohero = logohero;
+      if (selected !== undefined) updateFields.selected = selected;
+
+      const site = await Site.findByIdAndUpdate(
+        req.params.id,
+        { $set: updateFields },
+        { new: true, runValidators: false }
+      );
+
       if (!site) return res.status(404).json({ message: "Site not found" });
 
-      if (siteName) site.siteName = siteName;
-      if (siteDescription) site.siteDescription = siteDescription;
-      if (hero) site.hero = hero;
-      if (footer) site.footer = footer;
-      if (contactEmail) site.contactEmail = contactEmail;
-      if (emailuser) site.emailuser = emailuser;
-      if (passworduser) site.passworduser = passworduser;
-      if (logoheader) site.logoheader = logoheader;
-      if (logohero) site.logohero = logohero;
-      if (selected) site.selected = selected;
-
-      await site.save();
       res.status(200).json(site);
     } catch (err) {
+      console.error("PUT /site/:id error:", err.message);
       res.status(500).json({ error: err.message });
     }
   }

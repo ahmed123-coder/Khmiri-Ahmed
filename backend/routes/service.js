@@ -7,7 +7,7 @@ const cloudinary = require("../cloudinaryConfig");
 const Service = require("../models/service");
 const User = require("../models/user");
 
-const JWT_SECRET = "your_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 
 // Cloudinary storage config
