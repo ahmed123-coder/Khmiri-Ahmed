@@ -32,11 +32,7 @@ const Home = () => {
 <Skills skillsTitle={siteContent?.skillsTitle} />
 <Services serviceDescription={siteContent?.serviceDescription} />
 <Projects />
-<Contact 
-  contactEmail={siteContent?.contactEmail} 
-  emailuser={siteContent?.emailuser} 
-  passworduser={siteContent?.passworduser} 
-/>
+<Contact />
 <Footer footer={siteContent?.footer} />
     </div>
   );

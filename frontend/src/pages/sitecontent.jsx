@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Plus, X, Pencil, Trash2, CheckCircle, XCircle, Upload, Eye, EyeOff } from 'lucide-react';
+import { Globe, Plus, X, Pencil, Trash2, CheckCircle, XCircle, Upload } from 'lucide-react';
 
 const API_URL = 'http://localhost:3000/api/site';
 
@@ -21,13 +21,12 @@ const SiteManagementPage = () => {
   const [sites, setSites] = useState([]);
   const [formData, setFormData] = useState({
     siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '',
-    contactEmail: '', emailuser: '', passworduser: '', logoheader: null, logohero: null,
+    contactEmail: '', logoheader: null, logohero: null,
   });
   const [logoheaderPreview, setLogoheaderPreview] = useState('');
   const [logoheroPreview, setLogoheroPreview] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +68,7 @@ const SiteManagementPage = () => {
   };
 
   const handleEdit = (site) => {
-    setFormData({ siteName: site.siteName, siteDescription: site.siteDescription, hero: site.hero, heroTitle: site.heroTitle || '', heroName: site.heroName || '', skillsTitle: site.skillsTitle || '', serviceDescription: site.serviceDescription || '', footer: site.footer, contactEmail: site.contactEmail, emailuser: site.emailuser, passworduser: site.passworduser, logoheader: null, logohero: null });
+    setFormData({ siteName: site.siteName, siteDescription: site.siteDescription, hero: site.hero, heroTitle: site.heroTitle || '', heroName: site.heroName || '', skillsTitle: site.skillsTitle || '', serviceDescription: site.serviceDescription || '', footer: site.footer, contactEmail: site.contactEmail, logoheader: null, logohero: null });
     setLogoheaderPreview(site.logoheader || ''); setLogoheroPreview(site.logohero || '');
     setEditingId(site._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -92,7 +91,7 @@ const SiteManagementPage = () => {
   };
 
   const resetForm = () => {
-    setFormData({ siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '', contactEmail: '', emailuser: '', passworduser: '', logoheader: null, logohero: null });
+    setFormData({ siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '', contactEmail: '', logoheader: null, logohero: null });
     setLogoheaderPreview(''); setLogoheroPreview(''); setEditingId(null);
   };
 
@@ -160,19 +159,6 @@ const SiteManagementPage = () => {
 
           <Field label="Footer Text">
             <textarea name="footer" placeholder="Footer content..." value={formData.footer} onChange={handleInputChange} required rows={3} className={`${inp} resize-none`} style={inpStyle} />
-          </Field>
-
-          <Field label="SMTP Email">
-            <input type="email" name="emailuser" placeholder="smtp@example.com" value={formData.emailuser} onChange={handleInputChange} required className={inp} style={inpStyle} />
-          </Field>
-
-          <Field label="Email Password">
-            <div className="relative">
-              <input type={showPassword ? 'text' : 'password'} name="passworduser" placeholder="••••••••" value={formData.passworduser} onChange={handleInputChange} required className={`${inp} pr-10`} style={inpStyle} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style={{ color: '#94a3b8' }}>
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
           </Field>
 
           <Field label="Header Logo">

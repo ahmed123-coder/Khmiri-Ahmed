@@ -12,9 +12,7 @@ const siteSchema = new mongoose.Schema({
   serviceDescription: { type: String },
   footer:{ type: String, required: true },
   contactEmail: { type: String, required: true },
-  emailuser:{type: String, required: true},
-  passworduser:{type: String, required: true},
-  logohero: { type: String, required: true }, // رابط الشعار
+  logohero: { type: String, required: true },
   selected :{type:String, enum:['selected', 'not selected'],default:"not selected" },
 });
 

@@ -59,8 +59,6 @@ router.post(
         serviceDescription,
         footer,
         contactEmail,
-        emailuser,
-        passworduser,
         selected,
       } = req.body;
 
@@ -92,8 +90,6 @@ router.post(
         serviceDescription,
         footer,
         contactEmail,
-        emailuser,
-        passworduser,
         logoheader,
         logohero,
         selected: selected || "not selected",
@@ -159,8 +155,6 @@ router.put(
         serviceDescription,
         footer,
         contactEmail,
-        emailuser,
-        passworduser,
         selected,
       } = req.body;
 
@@ -178,8 +172,6 @@ router.put(
       if (serviceDescription !== undefined) updateFields.serviceDescription = serviceDescription;
       if (footer !== undefined) updateFields.footer = footer;
       if (contactEmail !== undefined) updateFields.contactEmail = contactEmail;
-      if (emailuser !== undefined) updateFields.emailuser = emailuser;
-      if (passworduser !== undefined) updateFields.passworduser = passworduser;
       if (logoheader) updateFields.logoheader = logoheader;
       if (logohero) updateFields.logohero = logohero;
       if (selected !== undefined) updateFields.selected = selected;

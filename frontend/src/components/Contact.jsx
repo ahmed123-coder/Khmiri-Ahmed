@@ -11,35 +11,44 @@ export const Contact = () => {
     email: '',
     phone: '',
     message: ''
-  }
+  };
   const [formDetails, setFormDetails] = useState(formInitialDetails);
   const [buttonText, setButtonText] = useState('Send');
   const [status, setStatus] = useState({});
 
   const onFormUpdate = (category, value) => {
-      setFormDetails({
-        ...formDetails,
-        [category]: value
-      })
-  }
+    setFormDetails({
+      ...formDetails,
+      [category]: value
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setButtonText("Sending...");
-    let response = await fetch("http://localhost:3000/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=utf-8",
-      },
-      body: JSON.stringify(formDetails),
-    });
-    setButtonText("Send");
-    let result = await response.json();
-    setFormDetails(formInitialDetails);
-    if (result.code == 200) {
-      setStatus({ succes: true, message: 'Message sent successfully'});
-    } else {
-      setStatus({ succes: false, message: 'Something went wrong, please try again later.'});
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({
+          name: `${formDetails.firstName} ${formDetails.lastName}`.trim(),
+          email: formDetails.email,
+          message: formDetails.message,
+        }),
+      });
+      const result = await response.json();
+      setFormDetails(formInitialDetails);
+      if (response.ok) {
+        setStatus({ success: true, message: 'Message sent successfully' });
+      } else {
+        setStatus({ success: false, message: result.message || 'Something went wrong, please try again later.' });
+      }
+    } catch {
+      setStatus({ success: false, message: 'Something went wrong, please try again later.' });
+    } finally {
+      setButtonText("Send");
     }
   };
 

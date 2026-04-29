@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "mySuperSecretKey";
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_dev_secret";
 
 // Login route
 router.post("/login", async (req, res) => {

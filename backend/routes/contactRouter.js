@@ -3,29 +3,33 @@ const nodemailer = require("nodemailer");
 const router = express.Router();
 require("dotenv").config();
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
-
 router.post("/", async (req, res) => {
-  const { name, email, message, to , pass, user} = req.body;
+  const { name, email, message } = req.body;
 
-  if (!name || !email || !message || !to) {
+  if (!name || !email || !message) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const contactTo = process.env.CONTACT_TO;
+
+  if (!smtpUser || !smtpPass || !contactTo) {
+    return res.status(500).json({ message: "Email service is not configured" });
+  }
+
   try {
-    // إعداد SMTP لنقل البريد
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: user, // بريدك
-        pass: pass, // كلمة المرور الخاصة بالبريد
+        user: smtpUser,
+        pass: smtpPass,
       },
     });
 
-    // إعداد محتوى البريد
     const mailOptions = {
-      from: user,
-      to: to, // Use the contactEmail passed from the frontend
+      from: smtpUser,
+      to: contactTo,
       subject: `New Contact Message from ${name}`,
       text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
     };
