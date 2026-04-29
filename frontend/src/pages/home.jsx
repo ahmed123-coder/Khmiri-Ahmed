@@ -28,9 +28,9 @@ const Home = () => {
   return (
     <div className="App">
 <NavBar logo={siteContent?.logoheader} siteName={siteContent?.siteName}/>
-<Banner hero={siteContent?.hero} logohero={siteContent?.logohero}/>
-<Skills />
-<Services />
+<Banner hero={siteContent?.hero} logohero={siteContent?.logohero} heroTitle={siteContent?.heroTitle} heroName={siteContent?.heroName}/>
+<Skills skillsTitle={siteContent?.skillsTitle} />
+<Services serviceDescription={siteContent?.serviceDescription} />
 <Projects />
 <Contact 
   contactEmail={siteContent?.contactEmail} 

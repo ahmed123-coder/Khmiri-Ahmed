@@ -20,7 +20,7 @@ const SiteManagementPage = () => {
   const [token] = useState(localStorage.getItem('token'));
   const [sites, setSites] = useState([]);
   const [formData, setFormData] = useState({
-    siteName: '', siteDescription: '', hero: '', footer: '',
+    siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '',
     contactEmail: '', emailuser: '', passworduser: '', logoheader: null, logohero: null,
   });
   const [logoheaderPreview, setLogoheaderPreview] = useState('');
@@ -69,7 +69,7 @@ const SiteManagementPage = () => {
   };
 
   const handleEdit = (site) => {
-    setFormData({ siteName: site.siteName, siteDescription: site.siteDescription, hero: site.hero, footer: site.footer, contactEmail: site.contactEmail, emailuser: site.emailuser, passworduser: site.passworduser, logoheader: null, logohero: null });
+    setFormData({ siteName: site.siteName, siteDescription: site.siteDescription, hero: site.hero, heroTitle: site.heroTitle || '', heroName: site.heroName || '', skillsTitle: site.skillsTitle || '', serviceDescription: site.serviceDescription || '', footer: site.footer, contactEmail: site.contactEmail, emailuser: site.emailuser, passworduser: site.passworduser, logoheader: null, logohero: null });
     setLogoheaderPreview(site.logoheader || ''); setLogoheroPreview(site.logohero || '');
     setEditingId(site._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -92,7 +92,7 @@ const SiteManagementPage = () => {
   };
 
   const resetForm = () => {
-    setFormData({ siteName: '', siteDescription: '', hero: '', footer: '', contactEmail: '', emailuser: '', passworduser: '', logoheader: null, logohero: null });
+    setFormData({ siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '', contactEmail: '', emailuser: '', passworduser: '', logoheader: null, logohero: null });
     setLogoheaderPreview(''); setLogoheroPreview(''); setEditingId(null);
   };
 
@@ -140,6 +140,22 @@ const SiteManagementPage = () => {
 
           <Field label="Hero Text">
             <textarea name="hero" placeholder="Hero section text..." value={formData.hero} onChange={handleInputChange} required rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          </Field>
+
+          <Field label="Hero Title">
+            <input type="text" name="heroTitle" placeholder="Welcome to my Khmiri IT" value={formData.heroTitle} onChange={handleInputChange} className={inp} style={inpStyle} />
+          </Field>
+
+          <Field label="Hero Name">
+            <input type="text" name="heroName" placeholder="Ahmed Web" value={formData.heroName} onChange={handleInputChange} className={inp} style={inpStyle} />
+          </Field>
+
+          <Field label="Skills Title">
+            <input type="text" name="skillsTitle" placeholder="Skills" value={formData.skillsTitle} onChange={handleInputChange} className={inp} style={inpStyle} />
+          </Field>
+
+          <Field label="Service Description" col2>
+            <textarea name="serviceDescription" placeholder="Here's what I can do for you — from design to deployment." value={formData.serviceDescription} onChange={handleInputChange} rows={2} className={`${inp} resize-none`} style={inpStyle} />
           </Field>
 
           <Field label="Footer Text">

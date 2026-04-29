@@ -53,6 +53,10 @@ router.post(
         siteName,
         siteDescription,
         hero,
+        heroTitle,
+        heroName,
+        skillsTitle,
+        serviceDescription,
         footer,
         contactEmail,
         emailuser,
@@ -82,6 +86,10 @@ router.post(
         siteName,
         siteDescription,
         hero,
+        heroTitle,
+        heroName,
+        skillsTitle,
+        serviceDescription,
         footer,
         contactEmail,
         emailuser,
@@ -145,6 +153,10 @@ router.put(
         siteName,
         siteDescription,
         hero,
+        heroTitle,
+        heroName,
+        skillsTitle,
+        serviceDescription,
         footer,
         contactEmail,
         emailuser,
@@ -160,6 +172,10 @@ router.put(
       if (siteName !== undefined) updateFields.siteName = siteName;
       if (siteDescription !== undefined) updateFields.siteDescription = siteDescription;
       if (hero !== undefined) updateFields.hero = hero;
+      if (heroTitle !== undefined) updateFields.heroTitle = heroTitle;
+      if (heroName !== undefined) updateFields.heroName = heroName;
+      if (skillsTitle !== undefined) updateFields.skillsTitle = skillsTitle;
+      if (serviceDescription !== undefined) updateFields.serviceDescription = serviceDescription;
       if (footer !== undefined) updateFields.footer = footer;
       if (contactEmail !== undefined) updateFields.contactEmail = contactEmail;
       if (emailuser !== undefined) updateFields.emailuser = emailuser;

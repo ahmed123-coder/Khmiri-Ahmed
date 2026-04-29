@@ -4,7 +4,7 @@ import { ArrowRightCircle } from 'react-bootstrap-icons';
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
 
-export const Banner = ({ hero, logohero }) => {
+export const Banner = ({ hero, logohero, heroTitle, heroName }) => {
     const [loopNum, setLoopNum] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [text, setText] = useState('');
@@ -56,8 +56,8 @@ export const Banner = ({ hero, logohero }) => {
             <TrackVisibility>
               {({ isVisible }) =>
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <span className="tagline">Welcome to my Khmiri IT</span>
-                  <h1>{`Hi! I'm Ahmed`} <span className="txt-rotate" data-period="1000" data-rotate='[ "Web Developer", "Web Designer", "UI/UX Designer" ]'><span className="wrap">{text}</span></span></h1>
+                  <span className="tagline">{heroTitle || "Welcome to my Khmiri IT"}</span>
+                  <h1>{`Hi! I'm ${heroName || "Ahmed Web"}`} <span className="txt-rotate" data-period="1000" data-rotate='[ "Web Developer", "Web Designer", "UI/UX Designer" ]'><span className="wrap">{text}</span></span></h1>
                   <p>{hero}</p>
                   <button onClick={() => console.log('connect')}>Let’s Connect <ArrowRightCircle size={25} /></button>
                 </div>}
