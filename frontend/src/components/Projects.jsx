@@ -5,7 +5,7 @@ import { ProjectCard } from "./ProjectCard";
 import colorSharp2 from "../assets/img/color-sharp2.png";
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
-import axios from "axios";
+import api from "../api";
 
 export const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -13,7 +13,7 @@ export const Projects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/project");
+        const response = await api.get("/api/project");
         setProjects(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);

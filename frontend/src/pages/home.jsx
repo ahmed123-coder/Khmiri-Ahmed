@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from "react";
 import { useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import "../App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { NavBar } from "../components/NavBar";
@@ -17,7 +17,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/site/selected");
+        const response = await api.get("/api/site/selected");
         setSiteContent(response.data);
       } catch (error) {
         console.error("Error fetching site content:", error);

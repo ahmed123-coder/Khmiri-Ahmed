@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff, Lock, User, AlertCircle } from 'lucide-react';
 
@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:3000/api/user/login', formData);
+      const response = await api.post('/api/user/login', formData);
       localStorage.setItem('token', response.data.token);
       const decoded = jwtDecode(response.data.token);
       if (decoded.role === 'admin') window.location.href = '/admin';

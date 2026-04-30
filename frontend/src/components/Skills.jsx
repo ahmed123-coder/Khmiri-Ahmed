@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import colorSharp from "../assets/img/color-sharp.png";
 
 const CircularProgress = ({ percentage, name }) => {
@@ -39,7 +39,7 @@ export const Skills = () => {
   const [skills, setSkills] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/skill")
+    api.get("/api/skill")
       .then(res => setSkills(res.data))
       .catch(err => console.error(err));
   }, []);

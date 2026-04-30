@@ -3,6 +3,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import contactImg from "../assets/img/contact-img.svg";
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
+import api from "../api";
 
 export const Contact = () => {
   const formInitialDetails = {
@@ -27,26 +28,15 @@ export const Contact = () => {
     e.preventDefault();
     setButtonText("Sending...");
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify({
-          name: `${formDetails.firstName} ${formDetails.lastName}`.trim(),
-          email: formDetails.email,
-          message: formDetails.message,
-        }),
+      const response = await api.post("/api/contact", {
+        name: `${formDetails.firstName} ${formDetails.lastName}`.trim(),
+        email: formDetails.email,
+        message: formDetails.message,
       });
-      const result = await response.json();
       setFormDetails(formInitialDetails);
-      if (response.ok) {
-        setStatus({ success: true, message: 'Message sent successfully' });
-      } else {
-        setStatus({ success: false, message: result.message || 'Something went wrong, please try again later.' });
-      }
-    } catch {
-      setStatus({ success: false, message: 'Something went wrong, please try again later.' });
+      setStatus({ success: true, message: 'Message sent successfully' });
+    } catch (err) {
+      setStatus({ success: false, message: err.response?.data?.message || 'Something went wrong, please try again later.' });
     } finally {
       setButtonText("Send");
     }

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Plus, X, Pencil, Trash2, CheckCircle, XCircle, Upload } from 'lucide-react';
 
-const API_URL = 'http://localhost:3000/api/site';
+const API_URL = '/api/site';
 
 const Field = ({ label, children, col2 = false }) => (
   <div className={`flex flex-col gap-1.5 ${col2 ? 'md:col-span-2' : ''}`}>
@@ -35,7 +35,7 @@ const SiteManagementPage = () => {
   }, []);
 
   const fetchSites = async () => {
-    try { const res = await axios.get(API_URL); setSites(res.data); }
+    try { const res = await api.get(API_URL); setSites(res.data); }
     catch { toast.error('Failed to load sites'); }
   };
 
@@ -59,9 +59,8 @@ const SiteManagementPage = () => {
     const payload = new FormData();
     Object.entries(formData).forEach(([k, v]) => { if (v !== null && v !== '') payload.append(k, v); });
     try {
-      const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' };
-      if (editingId) { await axios.put(`${API_URL}/${editingId}`, payload, { headers }); toast.success('Site updated'); }
-      else { await axios.post(API_URL, payload, { headers }); toast.success('Site created'); }
+      if (editingId) { await api.put(`${API_URL}/${editingId}`, payload); toast.success('Site updated'); }
+      else { await api.post(API_URL, payload); toast.success('Site created'); }
       fetchSites(); resetForm();
     } catch { toast.error('Error saving site'); }
     finally { setLoading(false); }
@@ -76,17 +75,17 @@ const SiteManagementPage = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this site?')) return;
-    try { await axios.delete(`${API_URL}/${id}`, { headers: { Authorization: `Bearer ${token}` } }); toast.success('Deleted'); fetchSites(); }
+    try { await api.delete(`${API_URL}/${id}`); toast.success('Deleted'); fetchSites(); }
     catch { toast.error('Error deleting'); }
   };
 
   const handleSelect = async (id) => {
-    try { await axios.put(`${API_URL}/${id}/select`, {}, { headers: { Authorization: `Bearer ${token}` } }); toast.success('Activated'); fetchSites(); }
+    try { await api.put(`${API_URL}/${id}/select`, {}); toast.success('Activated'); fetchSites(); }
     catch { toast.error('Error'); }
   };
 
   const handleDeselect = async (id) => {
-    try { await axios.put(`${API_URL}/${id}/deselect`, {}, { headers: { Authorization: `Bearer ${token}` } }); toast.success('Deactivated'); fetchSites(); }
+    try { await api.put(`${API_URL}/${id}/deselect`, {}); toast.success('Deactivated'); fetchSites(); }
     catch { toast.error('Error'); }
   };
 

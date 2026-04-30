@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Zap, Plus, X, Pencil, Trash2 } from 'lucide-react';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
@@ -14,17 +14,15 @@ const SkillsAdmin = () => {
   useEffect(() => { fetchSkills(); }, []);
 
   const fetchSkills = async () => {
-    const res = await axios.get('http://localhost:3000/api/skill');
+    const res = await api.get('/api/skill');
     setSkills(res.data);
   };
-
-  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      if (editingId) await axios.put(`http://localhost:3000/api/skill/${editingId}`, form, { headers });
-      else await axios.post('http://localhost:3000/api/skill', form, { headers });
+      if (editingId) await api.put(`/api/skill/${editingId}`, form);
+      else await api.post('/api/skill', form);
       setEditingId(null); setForm({ name: '', percentage: 50 }); fetchSkills();
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
@@ -32,7 +30,7 @@ const SkillsAdmin = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this skill?')) return;
-    await axios.delete(`http://localhost:3000/api/skill/${id}`, { headers });
+    await api.delete(`/api/skill/${id}`);
     fetchSkills();
   };
 

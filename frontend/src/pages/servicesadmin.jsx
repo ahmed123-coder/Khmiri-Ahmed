@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Wrench, Plus, X, Pencil, Trash2, Upload, ImageIcon } from 'lucide-react';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
@@ -16,7 +16,7 @@ const ServiceManager = () => {
   useEffect(() => { fetchServices(); }, []);
 
   const fetchServices = async () => {
-    try { const res = await axios.get('http://localhost:3000/api/service'); setServices(res.data); }
+    try { const res = await api.get('/api/service'); setServices(res.data); }
     catch (err) { console.error(err); }
   };
 
@@ -36,9 +36,8 @@ const ServiceManager = () => {
     if (formData.icon) payload.append('icon', formData.icon);
     if (formData.image) payload.append('image', formData.image);
     try {
-      const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-      if (editingService) await axios.put(`http://localhost:3000/api/service/${editingService}`, payload, { headers });
-      else await axios.post('http://localhost:3000/api/service', payload, { headers });
+      if (editingService) await api.put(`/api/service/${editingService}`, payload);
+      else await api.post('/api/service', payload);
       resetForm(); fetchServices();
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
@@ -47,7 +46,7 @@ const ServiceManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this service?')) return;
     try {
-      await axios.delete(`http://localhost:3000/api/service/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+      await api.delete(`/api/service/${id}`);
       fetchServices();
     } catch (err) { console.error(err); }
   };

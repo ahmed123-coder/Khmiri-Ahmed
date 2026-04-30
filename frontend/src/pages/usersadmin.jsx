@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Users, Plus, X, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 
-const API_URL = 'http://localhost:3000/api/user';
+const API_URL = '/api/user';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
 const inpStyle = { background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' };
@@ -18,7 +18,7 @@ const ManageUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(API_URL, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.get(API_URL);
       setUsers(res.data);
     } catch (err) { console.error(err); }
   };
@@ -28,9 +28,8 @@ const ManageUsers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-      if (editingUser) await axios.put(`${API_URL}/${editingUser._id}`, formData, { headers });
-      else await axios.post(`${API_URL}/register`, formData, { headers });
+      if (editingUser) await api.put(`${API_URL}/${editingUser._id}`, formData);
+      else await api.post(`${API_URL}/register`, formData);
       fetchUsers(); resetForm();
     } catch (err) { console.error(err); }
   };
@@ -38,7 +37,7 @@ const ManageUsers = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this user?')) return;
     try {
-      await axios.delete(`${API_URL}/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`${API_URL}/${id}`);
       fetchUsers();
     } catch (err) { console.error(err); }
   };

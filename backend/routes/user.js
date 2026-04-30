@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { verifyAdmin } = require("../middleware/auth");
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_dev_secret";
 
 // Login route
@@ -31,9 +32,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Register route
-router.post("/register", async (req, res) => {
-  const { username, password, role } = req.body;
+// Register route — admin only; role is always forced to "user"
+router.post("/register", verifyAdmin, async (req, res) => {
+  const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ message: "Username and password are required" });
   }
@@ -53,8 +54,8 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
-    const newUser = new User({ username, password: hashedPassword, role });
+    // Create new user — never trust role from client
+    const newUser = new User({ username, password: hashedPassword, role: "user" });
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {

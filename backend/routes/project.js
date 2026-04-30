@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../cloudinaryConfig");
 const Project = require("../models/project");
-const User = require("../models/user");
-const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
+const { verifyAdmin } = require("../middleware/auth");
 
 
 // Cloudinary storage config
@@ -22,26 +20,8 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-// Middleware to check admin
-const authenticateAdmin = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token provided" });
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    if (user.role !== "admin") return res.status(403).json({ message: "Only admins are allowed" });
-
-    req.user = user;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token", error: err.message });
-  }
-};
-
 // POST /api/projects - Create a project
-router.post("/", authenticateAdmin, upload.single("image"), async (req, res) => {
+router.post("/", verifyAdmin, upload.single("image"), async (req, res) => {
   try {
     const { title, description } = req.body;
     const image = req.file?.path;
@@ -67,7 +47,7 @@ router.get("/", async (req, res) => {
 });
 
 // PUT /api/projects/:id - Update a project
-router.put("/:id", authenticateAdmin, upload.single("image"), async (req, res) => {
+router.put("/:id", verifyAdmin, upload.single("image"), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
@@ -85,7 +65,7 @@ router.put("/:id", authenticateAdmin, upload.single("image"), async (req, res) =
 });
 
 // DELETE /api/projects/:id - Delete a project
-router.delete("/:id", authenticateAdmin, async (req, res) => {
+router.delete("/:id", verifyAdmin, async (req, res) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });

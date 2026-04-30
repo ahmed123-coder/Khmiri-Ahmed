@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import colorSharp2 from "../assets/img/color-sharp2.png";
 
 export const Services = () => {
@@ -7,7 +7,7 @@ export const Services = () => {
   const [hovered, setHovered] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/service")
+    api.get("/api/service")
       .then(res => setServices(res.data))
       .catch(err => console.error(err));
   }, []);
