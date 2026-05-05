@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "ahmed-khmiri",
-    upload_preset:process.env.CLOUDINARY_UPLOAD_PRESET,
+    upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
     transformation: [{ width: 800, crop: "limit" }],
   },
@@ -23,56 +23,38 @@ const upload = multer({ storage });
 router.post(
   "/",
   verifyAdmin,
-  upload.fields([
-    { name: "logoheader", maxCount: 1 },
-    { name: "logohero", maxCount: 1 },
-  ]),
+  upload.fields([{ name: "logoheader", maxCount: 1 }]),
   async (req, res) => {
     try {
       const {
         siteName,
-        siteDescription,
-        hero,
-        heroTitle,
-        heroName,
-        skillsTitle,
-        serviceDescription,
-        footer,
         contactEmail,
         selected,
+        roles,
+        linkedIn,
+        facebook,
+        instagram,
       } = req.body;
 
       const logoheader = req.files?.logoheader?.[0]?.path;
-      const logohero = req.files?.logohero?.[0]?.path;
 
-      if (!logoheader || !logohero) {
-        return res
-          .status(400)
-          .json({ message: "Both logoheader and logohero are required" });
-      }
-
-      if (selected === "selected") {
-        const alreadySelected = await Site.findOne({ selected: "selected" });
-        if (alreadySelected) {
-          return res
-            .status(400)
-            .json({ message: "Another site is already selected. Please deselect it first." });
-        }
+      if (!logoheader) {
+        return res.status(400).json({ message: "logoheader is required" });
       }
 
       const site = new Site({
         siteName,
-        siteDescription,
-        hero,
-        heroTitle,
-        heroName,
-        skillsTitle,
-        serviceDescription,
-        footer,
         contactEmail,
         logoheader,
-        logohero,
-        selected: selected || "not selected",
+        selected: selected === true || selected === "true" ? true : false,
+        roles: roles
+          ? Array.isArray(roles)
+            ? roles
+            : roles.split(",").map((r) => r.trim()).filter(Boolean)
+          : [],
+        linkedIn: linkedIn || "",
+        facebook: facebook || "",
+        instagram: instagram || "",
       });
 
       await site.save();
@@ -97,8 +79,8 @@ router.get("/", async (req, res) => {
 router.get("/selected", async (req, res) => {
   try {
     // Attempt to find the selected site
-    let site = await Site.findOne({ selected: "selected" });
-    
+    let site = await Site.findOne({ selected: true });
+
     // If no site is explicitly selected, fallback to the first available site
     if (!site) {
       site = await Site.findOne();
@@ -107,6 +89,11 @@ router.get("/selected", async (req, res) => {
     // If still no site (db is empty), return 200 with an empty object to avoid 404 errors on the frontend
     if (!site) {
       return res.status(200).json({});
+    }
+
+    // Sort sections ascending by order
+    if (site && site.sections && site.sections.length > 0) {
+      site.sections.sort((a, b) => a.order - b.order);
     }
 
     res.status(200).json(site);
@@ -119,42 +106,34 @@ router.get("/selected", async (req, res) => {
 router.put(
   "/:id",
   verifyAdmin,
-  upload.fields([
-    { name: "logoheader", maxCount: 1 },
-    { name: "logohero", maxCount: 1 },
-  ]),
+  upload.fields([{ name: "logoheader", maxCount: 1 }]),
   async (req, res) => {
     try {
       const {
         siteName,
-        siteDescription,
-        hero,
-        heroTitle,
-        heroName,
-        skillsTitle,
-        serviceDescription,
-        footer,
         contactEmail,
         selected,
+        roles,
+        linkedIn,
+        facebook,
+        instagram,
       } = req.body;
 
       const logoheader = req.files?.logoheader?.[0]?.path;
-      const logohero = req.files?.logohero?.[0]?.path;
 
       // Build update object with only provided fields
       const updateFields = {};
       if (siteName !== undefined) updateFields.siteName = siteName;
-      if (siteDescription !== undefined) updateFields.siteDescription = siteDescription;
-      if (hero !== undefined) updateFields.hero = hero;
-      if (heroTitle !== undefined) updateFields.heroTitle = heroTitle;
-      if (heroName !== undefined) updateFields.heroName = heroName;
-      if (skillsTitle !== undefined) updateFields.skillsTitle = skillsTitle;
-      if (serviceDescription !== undefined) updateFields.serviceDescription = serviceDescription;
-      if (footer !== undefined) updateFields.footer = footer;
       if (contactEmail !== undefined) updateFields.contactEmail = contactEmail;
       if (logoheader) updateFields.logoheader = logoheader;
-      if (logohero) updateFields.logohero = logohero;
       if (selected !== undefined) updateFields.selected = selected;
+      if (roles !== undefined)
+        updateFields.roles = Array.isArray(roles)
+          ? roles
+          : roles.split(",").map((r) => r.trim()).filter(Boolean);
+      if (linkedIn !== undefined) updateFields.linkedIn = linkedIn;
+      if (facebook !== undefined) updateFields.facebook = facebook;
+      if (instagram !== undefined) updateFields.instagram = instagram;
 
       const site = await Site.findByIdAndUpdate(
         req.params.id,
@@ -175,10 +154,10 @@ router.put(
 // Select site
 router.put("/:id/select", verifyAdmin, async (req, res) => {
   try {
-    await Site.updateMany({}, { selected: "not selected" });
+    await Site.updateMany({}, { selected: false });
     const site = await Site.findByIdAndUpdate(
       req.params.id,
-      { selected: "selected" },
+      { selected: true },
       { new: true }
     );
 
@@ -195,7 +174,7 @@ router.put("/:id/deselect", verifyAdmin, async (req, res) => {
   try {
     const site = await Site.findByIdAndUpdate(
       req.params.id,
-      { selected: "not selected" },
+      { selected: false },
       { new: true }
     );
 

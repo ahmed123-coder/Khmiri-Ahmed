@@ -6,7 +6,7 @@ import navIcon2 from '../assets/img/nav-icon2.svg';
 import navIcon3 from '../assets/img/nav-icon3.svg';
 import { HashLink } from 'react-router-hash-link';
 
-export const NavBar = ({logo, siteName}) => {
+export const NavBar = ({logo, siteName, linkedIn, facebook, instagram}) => {
 
   const [activeLink, setActiveLink] = useState('home');
   const [scrolled, setScrolled] = useState(false);
@@ -46,9 +46,9 @@ export const NavBar = ({logo, siteName}) => {
           </Nav>
           <span className="navbar-text">
             <div className="social-icon">
-              <a href="https://www.linkedin.com/in/hamoud-khemiri-901404291/"><img src={navIcon1} alt="" /></a>
-              <a href="https://www.facebook.com/ahmed.khemiri.180410"><img src={navIcon2} alt="" /></a>
-              <a href="https://www.instagram.com/ahmedkhemiri6/"><img src={navIcon3} alt="" /></a>
+              <a href={linkedIn || 'https://www.linkedin.com'} target="_blank" rel="noreferrer"><img src={navIcon1} alt="LinkedIn" /></a>
+              <a href={facebook || 'https://www.facebook.com'} target="_blank" rel="noreferrer"><img src={navIcon2} alt="Facebook" /></a>
+              <a href={instagram || 'https://www.instagram.com'} target="_blank" rel="noreferrer"><img src={navIcon3} alt="Instagram" /></a>
             </div>
             <HashLink to='#connect'>
               <button className="vvd"><span>Let’s Connect</span></button>

@@ -3,6 +3,7 @@ import api from '../api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Plus, X, Pencil, Trash2, CheckCircle, XCircle, Upload } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const API_URL = '/api/site';
 
@@ -20,13 +21,13 @@ const SiteManagementPage = () => {
   const [token] = useState(localStorage.getItem('token'));
   const [sites, setSites] = useState([]);
   const [formData, setFormData] = useState({
-    siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '',
-    contactEmail: '', logoheader: null, logohero: null,
+    siteName: '', contactEmail: '', logoheader: null,
+    roles: '', linkedIn: '', facebook: '', instagram: '',
   });
   const [logoheaderPreview, setLogoheaderPreview] = useState('');
-  const [logoheroPreview, setLogoheroPreview] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const SiteManagementPage = () => {
 
   const fetchSites = async () => {
     try { const res = await api.get(API_URL); setSites(res.data); }
-    catch { toast.error('Failed to load sites'); }
+    catch (err) { toast.error(err.response?.data?.message || 'Failed to load sites'); }
   };
 
   const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -49,7 +50,6 @@ const SiteManagementPage = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (name === 'logoheader') setLogoheaderPreview(reader.result);
-      if (name === 'logohero') setLogoheroPreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -62,40 +62,60 @@ const SiteManagementPage = () => {
       if (editingId) { await api.put(`${API_URL}/${editingId}`, payload); toast.success('Site updated'); }
       else { await api.post(API_URL, payload); toast.success('Site created'); }
       fetchSites(); resetForm();
-    } catch { toast.error('Error saving site'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error saving site'); }
     finally { setLoading(false); }
   };
 
   const handleEdit = (site) => {
-    setFormData({ siteName: site.siteName, siteDescription: site.siteDescription, hero: site.hero, heroTitle: site.heroTitle || '', heroName: site.heroName || '', skillsTitle: site.skillsTitle || '', serviceDescription: site.serviceDescription || '', footer: site.footer, contactEmail: site.contactEmail, logoheader: null, logohero: null });
-    setLogoheaderPreview(site.logoheader || ''); setLogoheroPreview(site.logohero || '');
+    setFormData({
+      siteName: site.siteName || '',
+      contactEmail: site.contactEmail || '',
+      logoheader: null,
+      roles: (site.roles || []).join(', '),
+      linkedIn: site.linkedIn || '',
+      facebook: site.facebook || '',
+      instagram: site.instagram || '',
+    });
+    setLogoheaderPreview(site.logoheader || '');
     setEditingId(site._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this site?')) return;
+  const handleDelete = (id) => setConfirmModal({ open: true, id });
+
+  const confirmDelete = async () => {
+    const id = confirmModal.id;
+    setConfirmModal({ open: false, id: null });
     try { await api.delete(`${API_URL}/${id}`); toast.success('Deleted'); fetchSites(); }
-    catch { toast.error('Error deleting'); }
+    catch (err) { toast.error(err.response?.data?.message || 'Error deleting'); }
   };
 
   const handleSelect = async (id) => {
     try { await api.put(`${API_URL}/${id}/select`, {}); toast.success('Activated'); fetchSites(); }
-    catch { toast.error('Error'); }
+    catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleDeselect = async (id) => {
     try { await api.put(`${API_URL}/${id}/deselect`, {}); toast.success('Deactivated'); fetchSites(); }
-    catch { toast.error('Error'); }
+    catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const resetForm = () => {
-    setFormData({ siteName: '', siteDescription: '', hero: '', heroTitle: '', heroName: '', skillsTitle: '', serviceDescription: '', footer: '', contactEmail: '', logoheader: null, logohero: null });
-    setLogoheaderPreview(''); setLogoheroPreview(''); setEditingId(null);
+    setFormData({ siteName: '', contactEmail: '', logoheader: null, roles: '', linkedIn: '', facebook: '', instagram: '' });
+    setLogoheaderPreview('');
+    setEditingId(null);
   };
 
   return (
     <div className="space-y-6 pb-10">
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Delete Site"
+        message="This site configuration will be permanently deleted."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, id: null })}
+      />
 
       {/* Page header */}
       <div className="flex items-center justify-between">
@@ -132,32 +152,21 @@ const SiteManagementPage = () => {
             <input type="email" name="contactEmail" placeholder="contact@example.com" value={formData.contactEmail} onChange={handleInputChange} required className={inp} style={inpStyle} />
           </Field>
 
-          <Field label="Site Description" col2>
-            <textarea name="siteDescription" placeholder="Brief description..." value={formData.siteDescription} onChange={handleInputChange} required rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          <Field label="Roles (comma-separated)" col2>
+            <input name="roles" placeholder="Web Developer, UI/UX Designer, Freelancer" value={formData.roles} onChange={handleInputChange} className={inp} style={inpStyle} />
+            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Used for the typewriter effect in the banner. Separate each role with a comma.</p>
           </Field>
 
-          <Field label="Hero Text">
-            <textarea name="hero" placeholder="Hero section text..." value={formData.hero} onChange={handleInputChange} required rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          <Field label="LinkedIn URL">
+            <input name="linkedIn" placeholder="https://linkedin.com/in/yourprofile" value={formData.linkedIn} onChange={handleInputChange} className={inp} style={inpStyle} />
           </Field>
 
-          <Field label="Hero Title">
-            <input type="text" name="heroTitle" placeholder="Welcome to my Khmiri IT" value={formData.heroTitle} onChange={handleInputChange} className={inp} style={inpStyle} />
+          <Field label="Facebook URL">
+            <input name="facebook" placeholder="https://facebook.com/yourprofile" value={formData.facebook} onChange={handleInputChange} className={inp} style={inpStyle} />
           </Field>
 
-          <Field label="Hero Name">
-            <input type="text" name="heroName" placeholder="Ahmed Web" value={formData.heroName} onChange={handleInputChange} className={inp} style={inpStyle} />
-          </Field>
-
-          <Field label="Skills Title">
-            <input type="text" name="skillsTitle" placeholder="Skills" value={formData.skillsTitle} onChange={handleInputChange} className={inp} style={inpStyle} />
-          </Field>
-
-          <Field label="Service Description" col2>
-            <textarea name="serviceDescription" placeholder="Here's what I can do for you — from design to deployment." value={formData.serviceDescription} onChange={handleInputChange} rows={2} className={`${inp} resize-none`} style={inpStyle} />
-          </Field>
-
-          <Field label="Footer Text">
-            <textarea name="footer" placeholder="Footer content..." value={formData.footer} onChange={handleInputChange} required rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          <Field label="Instagram URL">
+            <input name="instagram" placeholder="https://instagram.com/yourprofile" value={formData.instagram} onChange={handleInputChange} className={inp} style={inpStyle} />
           </Field>
 
           <Field label="Header Logo">
@@ -170,19 +179,6 @@ const SiteManagementPage = () => {
                 : <><Upload className="w-5 h-5" style={{ color: '#cbd5e1' }} /><span className="text-xs" style={{ color: '#94a3b8' }}>Click to upload</span></>
               }
               <input type="file" name="logoheader" accept="image/*" onChange={handleFileChange} className="hidden" />
-            </label>
-          </Field>
-
-          <Field label="Hero Logo">
-            <label className="flex flex-col items-center justify-center gap-2 rounded-xl cursor-pointer transition-all group overflow-hidden"
-              style={{ border: '2px dashed #e2e8f0', minHeight: '100px', background: '#fafafa' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#7c3aed'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#e2e8f0'}>
-              {logoheroPreview
-                ? <img src={logoheroPreview} alt="hero logo" className="h-14 object-contain rounded" />
-                : <><Upload className="w-5 h-5" style={{ color: '#cbd5e1' }} /><span className="text-xs" style={{ color: '#94a3b8' }}>Click to upload</span></>
-              }
-              <input type="file" name="logohero" accept="image/*" onChange={handleFileChange} className="hidden" />
             </label>
           </Field>
 
@@ -220,10 +216,10 @@ const SiteManagementPage = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm" style={{ color: '#1e293b' }}>{site.siteName}</span>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                      style={site.selected === 'selected'
+                      style={site.selected === true
                         ? { background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }
                         : { background: '#f1f5f9', color: '#94a3b8', border: '1px solid #e2e8f0' }}>
-                      {site.selected === 'selected' ? '● Active' : '○ Inactive'}
+                      {site.selected === true ? '● Active' : '○ Inactive'}
                     </span>
                   </div>
                   <p className="text-xs mt-0.5 truncate max-w-sm" style={{ color: '#94a3b8' }}>{site.siteDescription}</p>
@@ -243,7 +239,7 @@ const SiteManagementPage = () => {
                   onMouseLeave={e => e.currentTarget.style.background = '#fef2f2'}>
                   <Trash2 className="w-3 h-3" /> Delete
                 </button>
-                {site.selected === 'selected' ? (
+                {site.selected === true ? (
                   <button onClick={() => handleDeselect(site._id)}
                     className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors hover:bg-slate-50"
                     style={{ color: '#64748b', borderColor: '#e2e8f0' }}>

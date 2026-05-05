@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 import { Users, Plus, X, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const API_URL = '/api/user';
 
@@ -12,6 +14,7 @@ const ManageUsers = () => {
   const [formData, setFormData] = useState({ username: '', password: '', role: 'user' });
   const [editingUser, setEditingUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
   const token = localStorage.getItem('token');
 
   useEffect(() => { fetchUsers(); }, []);
@@ -20,7 +23,7 @@ const ManageUsers = () => {
     try {
       const res = await api.get(API_URL);
       setUsers(res.data);
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,15 +34,18 @@ const ManageUsers = () => {
       if (editingUser) await api.put(`${API_URL}/${editingUser._id}`, formData);
       else await api.post(`${API_URL}/register`, formData);
       fetchUsers(); resetForm();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this user?')) return;
+  const handleDelete = (id) => setConfirmModal({ open: true, id });
+
+  const confirmDelete = async () => {
+    const id = confirmModal.id;
+    setConfirmModal({ open: false, id: null });
     try {
       await api.delete(`${API_URL}/${id}`);
       fetchUsers();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleEditClick = (user) => {
@@ -55,6 +61,14 @@ const ManageUsers = () => {
 
   return (
     <div className="space-y-6 pb-10">
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Delete User"
+        message="This user will be permanently deleted."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, id: null })}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between">

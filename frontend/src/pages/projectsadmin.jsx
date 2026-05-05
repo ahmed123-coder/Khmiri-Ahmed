@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { FolderKanban, Plus, X, Pencil, Trash2, Upload, ImageIcon } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { FolderKanban, Plus, X, Pencil, Trash2, Upload, ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
 const inpStyle = { background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' };
@@ -13,12 +15,13 @@ const ManageProjects = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
 
   useEffect(() => { fetchProjects(); }, []);
 
   const fetchProjects = async () => {
     try { const res = await api.get('/api/project'); setProjects(res.data); }
-    catch (err) { console.error(err); }
+    catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleImageChange = (e) => {
@@ -40,16 +43,19 @@ const ManageProjects = () => {
       if (editingId) await api.put(`/api/project/${editingId}`, formData);
       else await api.post('/api/project', formData);
       fetchProjects(); resetForm();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
     finally { setLoading(false); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this project?')) return;
+  const handleDelete = (id) => setConfirmModal({ open: true, id });
+
+  const confirmDelete = async () => {
+    const id = confirmModal.id;
+    setConfirmModal({ open: false, id: null });
     try {
       await api.delete(`/api/project/${id}`);
       fetchProjects();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleEdit = (project) => {
@@ -60,8 +66,36 @@ const ManageProjects = () => {
 
   const resetForm = () => { setTitle(''); setDescription(''); setImage(null); setImagePreview(''); setEditingId(null); };
 
+  // Move a project up or down in the list and persist the new order
+  const handleMove = async (index, direction) => {
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= projects.length) return;
+
+    const updated = [...projects];
+    [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
+
+    // Reassign order values to match new positions
+    const reordered = updated.map((p, i) => ({ ...p, order: i }));
+    setProjects(reordered); // optimistic update
+
+    try {
+      await api.put('/api/project/reorder', reordered.map(p => ({ id: p._id, order: p.order })));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to save order');
+      fetchProjects(); // revert on failure
+    }
+  };
+
   return (
     <div className="space-y-6 pb-10">
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Delete Project"
+        message="This project will be permanently deleted."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, id: null })}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -135,41 +169,80 @@ const ManageProjects = () => {
         </form>
       </div>
 
-      {/* Projects grid */}
+      {/* Projects list with ordering */}
       <div className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#94a3b8' }}>All Projects ({projects.length})</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#94a3b8' }}>
+            All Projects ({projects.length})
+          </h2>
+          {projects.length > 1 && (
+            <p className="text-xs" style={{ color: '#cbd5e1' }}>Use ↑↓ arrows to reorder</p>
+          )}
+        </div>
+
         {projects.length === 0 && (
           <div className="rounded-2xl p-10 text-center text-sm" style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#94a3b8' }}>
             No projects yet. Add your first one above.
           </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => (
-            <div key={project._id} className="rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg group"
+
+        <div className="space-y-3">
+          {projects.map((project, index) => (
+            <div key={project._id}
+              className="rounded-2xl overflow-hidden flex items-center gap-4 transition-all duration-200 hover:shadow-md"
               style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-              <div className="relative h-44 overflow-hidden" style={{ background: '#f8fafc' }}>
+
+              {/* Order controls */}
+              <div className="flex flex-col items-center gap-0.5 pl-3 flex-shrink-0">
+                <button
+                  onClick={() => handleMove(index, 'up')}
+                  disabled={index === 0}
+                  className="p-1 rounded-lg transition-colors disabled:opacity-20 hover:bg-slate-100"
+                  style={{ color: '#64748b' }}
+                  title="Move up"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold tabular-nums" style={{ color: '#cbd5e1' }}>{index + 1}</span>
+                <button
+                  onClick={() => handleMove(index, 'down')}
+                  disabled={index === projects.length - 1}
+                  className="p-1 rounded-lg transition-colors disabled:opacity-20 hover:bg-slate-100"
+                  style={{ color: '#64748b' }}
+                  title="Move down"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Thumbnail */}
+              <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-xl" style={{ background: '#f8fafc' }}>
                 {project.image
-                  ? <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-10 h-10" style={{ color: '#e2e8f0' }} /></div>
+                  ? <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6" style={{ color: '#e2e8f0' }} /></div>
                 }
               </div>
-              <div className="p-4 space-y-3">
-                <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{project.title}</h3>
-                <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: '#94a3b8' }}>{project.description}</p>
-                <div className="flex gap-2 pt-1">
-                  <button onClick={() => handleEdit(project)}
-                    className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 rounded-lg border transition-colors hover:bg-slate-50"
-                    style={{ color: '#64748b', borderColor: '#e2e8f0' }}>
-                    <Pencil className="w-3 h-3" /> Edit
-                  </button>
-                  <button onClick={() => handleDelete(project._id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 text-xs py-2 rounded-lg transition-colors"
-                    style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#fef2f2'}>
-                    <Trash2 className="w-3 h-3" /> Delete
-                  </button>
-                </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0 py-4">
+                <h3 className="font-bold text-sm truncate" style={{ color: '#1e293b' }}>{project.title}</h3>
+                <p className="text-xs line-clamp-1 mt-0.5" style={{ color: '#94a3b8' }}>{project.description}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pr-4 flex-shrink-0">
+                <button onClick={() => handleEdit(project)}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors hover:bg-slate-50"
+                  style={{ color: '#64748b', borderColor: '#e2e8f0' }}>
+                  <Pencil className="w-3 h-3" /> Edit
+                </button>
+                <button onClick={() => handleDelete(project._id)}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"
+                  style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fef2f2'}>
+                  <Trash2 className="w-3 h-3" /> Delete
+                </button>
               </div>
             </div>
           ))}

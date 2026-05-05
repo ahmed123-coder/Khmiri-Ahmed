@@ -35,7 +35,7 @@ const CircularProgress = ({ percentage, name }) => {
   );
 };
 
-export const Skills = () => {
+export const Skills = ({ title, subtitle }) => {
   const [skills, setSkills] = useState([]);
 
   useEffect(() => {
@@ -50,12 +50,8 @@ export const Skills = () => {
         <div className="row">
           <div className="col-12">
             <div className="skill-bx wow zoomIn">
-              <h2>Skills</h2>
-              <p>
-                As a MERN Stack developer, I build powerful web applications using MongoDB, Express, React, and Node.js.
-                I help bring your ideas to life with clean, scalable code and modern cloud deployment solutions.
-                <br />My Services
-              </p>
+              <h2>{title || 'Skills'}</h2>
+              {subtitle && <p>{subtitle}</p>}
               <div className="skills-grid">
                 {skills.map((skill) => (
                   <CircularProgress key={skill._id} percentage={skill.percentage} name={skill.name} />

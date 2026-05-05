@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { LayoutDashboard, FolderKanban, Wrench, Users, Globe, LogOut, Menu, X, Zap, ChevronRight, Home } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Wrench, Users, Globe, LogOut, Menu, X, Zap, ChevronRight, Home, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { to: '/admin/ManageSites', label: 'Site Content', icon: Globe },
+  { to: '/admin/ManageSections', label: 'Sections', icon: Layers },
   { to: '/admin/ManageProjects', label: 'Projects', icon: FolderKanban },
   { to: '/admin/ManageService', label: 'Services', icon: Wrench },
   { to: '/admin/ManageSkills', label: 'Skills', icon: Zap },
@@ -73,8 +75,8 @@ const Sidebaradmin = () => {
         <p className="text-xs font-semibold px-3 mb-3 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.25)' }}>
           Navigation
         </p>
-        {navItems.map(({ to, label, icon: Icon }) => {
-          const active = location.pathname === to;
+        {navItems.map(({ to, label, icon: Icon, exact }) => {
+          const active = exact ? location.pathname === to : location.pathname === to;
           return (
             <Link
               key={to}

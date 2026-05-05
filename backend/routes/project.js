@@ -1,79 +1,203 @@
-const express = require("express");
-const router = express.Router();
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../cloudinaryConfig");
-const Project = require("../models/project");
-const { verifyAdmin } = require("../middleware/auth");
+const express = require('express');
+const router  = express.Router();
+const multer  = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../cloudinaryConfig');
+const Project    = require('../models/project');
+const { verifyAdmin } = require('../middleware/auth');
 
+/* ─── Cloudinary storages ────────────────────────────────────────────────── */
 
-// Cloudinary storage config
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+const imageStorage = new CloudinaryStorage({
+  cloudinary,
   params: {
-    folder: "ahmed-khmiri",
-    upload_preset:process.env.CLOUDINARY_UPLOAD_PRESET,
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    transformation: [{ width: 800, crop: "limit" }],
+    folder: 'portfolio/projects/images',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ width: 1400, crop: 'limit', quality: 'auto' }],
   },
 });
 
-const upload = multer({ storage });
+const videoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async () => ({
+    folder: 'portfolio/projects/videos',
+    resource_type: 'video',
+    allowed_formats: ['mp4', 'webm', 'mov'],
+  }),
+});
 
-// POST /api/projects - Create a project
-router.post("/", verifyAdmin, upload.single("image"), async (req, res) => {
+// image uploader: 1 cover + up to 20 gallery images
+const uploadImages = multer({ storage: imageStorage }).fields([
+  { name: 'image',  maxCount: 1  },
+  { name: 'images', maxCount: 20 },
+]);
+
+// video uploader (separate endpoint)
+const uploadVideo = multer({ storage: videoStorage }).single('video');
+
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
+
+const extractPublicId = (url, resourceType = 'image') => {
+  if (!url) return null;
   try {
-    const { title, description } = req.body;
-    const image = req.file?.path;
+    const marker = resourceType === 'video' ? '/video/upload/' : '/image/upload/';
+    const parts  = url.split(marker);
+    if (parts.length < 2) return null;
+    return parts[1].replace(/^v\d+\//, '').replace(/\.[^/.]+$/, '');
+  } catch { return null; }
+};
 
-    if (!image) return res.status(400).json({ message: "Image is required" });
+const destroyAsset = (url, resourceType = 'image') => {
+  const id = extractPublicId(url, resourceType);
+  if (id) cloudinary.uploader.destroy(id, { resource_type: resourceType })
+    .catch(e => console.error('Cloudinary destroy error:', e.message));
+};
 
-    const project = new Project({ title, description, image });
+/* ─── GET /api/project  — list (no heavy fields) ─────────────────────────── */
+router.get('/', async (req, res) => {
+  try {
+    const projects = await Project.find()
+      .select('title description image slug category date order tags link')
+      .sort({ order: 1 });
+    res.json(projects);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* ─── GET /api/project/categories ───────────────────────────────────────── */
+router.get('/categories', async (req, res) => {
+  try {
+    const cats = await Project.distinct('category');
+    res.json(cats.filter(Boolean));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* ─── GET /api/project/:slugOrId  — full detail ──────────────────────────── */
+router.get('/:slugOrId', async (req, res) => {
+  try {
+    const { slugOrId } = req.params;
+    let project = await Project.findOne({ slug: slugOrId });
+    if (!project && /^[a-f\d]{24}$/i.test(slugOrId)) {
+      project = await Project.findById(slugOrId);
+    }
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    res.json(project);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* ─── POST /api/project  — create ───────────────────────────────────────── */
+router.post('/', verifyAdmin, uploadImages, async (req, res) => {
+  try {
+    const { title, description, slug, category, date, tags, link, video } = req.body;
+
+    const coverFile = req.files?.image?.[0];
+    if (!coverFile) return res.status(400).json({ message: 'Cover image is required' });
+
+    const galleryUrls = (req.files?.images || []).map(f => f.path);
+
+    const last  = await Project.findOne().sort({ order: -1 });
+    const order = last ? last.order + 1 : 0;
+
+    const project = new Project({
+      title,
+      description,
+      slug,
+      category: category || 'General',
+      date:     date     || Date.now(),
+      order,
+      image:  coverFile.path,
+      images: galleryUrls,
+      video:  video || '',
+      tags:   tags  ? JSON.parse(tags) : [],
+      link:   link  || '',
+    });
+
     await project.save();
     res.status(201).json(project);
   } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ message: 'Slug already exists' });
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/projects - List all projects
-router.get("/", async (req, res) => {
+/* ─── PUT /api/project/reorder  — bulk reorder ───────────────────────────── */
+router.put('/reorder', verifyAdmin, async (req, res) => {
   try {
-    const projects = await Project.find();
-    res.status(200).json(projects);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    const updates = req.body;
+    if (!Array.isArray(updates)) return res.status(400).json({ message: 'Expected array' });
+    await Promise.all(updates.map(({ id, order }) =>
+      Project.findByIdAndUpdate(id, { order })
+    ));
+    res.json({ message: 'Order updated' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// PUT /api/projects/:id - Update a project
-router.put("/:id", verifyAdmin, upload.single("image"), async (req, res) => {
+/* ─── PUT /api/project/:id  — update ────────────────────────────────────── */
+router.put('/:id', verifyAdmin, uploadImages, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: "Project not found" });
+    if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    const { title, description } = req.body;
-    if (title) project.title = title;
+    const { title, description, slug, category, date, tags, link, video, keepImages } = req.body;
+
+    if (title)       project.title       = title;
     if (description) project.description = description;
-    if (req.file?.path) project.image = req.file.path;
+    if (slug)        project.slug        = slug;
+    if (category)    project.category    = category;
+    if (date)        project.date        = date;
+    if (link !== undefined) project.link = link;
+    if (video !== undefined) project.video = video;
+    if (tags)        project.tags        = JSON.parse(tags);
+
+    // Replace cover image
+    if (req.files?.image?.[0]) {
+      destroyAsset(project.image);
+      project.image = req.files.image[0].path;
+    }
+
+    // Gallery: keep existing URLs sent from client + add new uploads
+    const kept    = keepImages ? JSON.parse(keepImages) : project.images;
+    const newImgs = (req.files?.images || []).map(f => f.path);
+    project.images = [...kept, ...newImgs];
 
     await project.save();
-    res.status(200).json(project);
+    res.json(project);
   } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ message: 'Slug already exists' });
     res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE /api/projects/:id - Delete a project
-router.delete("/:id", verifyAdmin, async (req, res) => {
+/* ─── POST /api/project/:id/video  — upload video to Cloudinary ─────────── */
+router.post('/:id/video', verifyAdmin, uploadVideo, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    // Delete old Cloudinary video if it was uploaded (not a YouTube link)
+    if (project.video && project.video.includes('cloudinary')) {
+      destroyAsset(project.video, 'video');
+    }
+
+    project.video = req.file.path;
+    await project.save();
+    res.json({ video: project.video });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* ─── DELETE /api/project/:id ────────────────────────────────────────────── */
+router.delete('/:id', verifyAdmin, async (req, res) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) return res.status(404).json({ message: "Project not found" });
+    if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    res.status(200).json({ message: "Project deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    destroyAsset(project.image);
+    project.images.forEach(img => destroyAsset(img));
+    if (project.video && project.video.includes('cloudinary')) {
+      destroyAsset(project.video, 'video');
+    }
+
+    res.json({ message: 'Deleted' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 module.exports = router;

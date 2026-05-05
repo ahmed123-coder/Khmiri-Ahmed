@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 import { Wrench, Plus, X, Pencil, Trash2, Upload, ImageIcon } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
 const inpStyle = { background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' };
@@ -12,12 +14,13 @@ const ServiceManager = () => {
   const [iconPreview, setIconPreview] = useState('');
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
 
   useEffect(() => { fetchServices(); }, []);
 
   const fetchServices = async () => {
     try { const res = await api.get('/api/service'); setServices(res.data); }
-    catch (err) { console.error(err); }
+    catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleFile = (field, file) => {
@@ -39,16 +42,19 @@ const ServiceManager = () => {
       if (editingService) await api.put(`/api/service/${editingService}`, payload);
       else await api.post('/api/service', payload);
       resetForm(); fetchServices();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
     finally { setLoading(false); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this service?')) return;
+  const handleDelete = (id) => setConfirmModal({ open: true, id });
+
+  const confirmDelete = async () => {
+    const id = confirmModal.id;
+    setConfirmModal({ open: false, id: null });
     try {
       await api.delete(`/api/service/${id}`);
       fetchServices();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleEdit = (service) => {
@@ -66,6 +72,14 @@ const ServiceManager = () => {
 
   return (
     <div className="space-y-6 pb-10">
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Delete Service"
+        message="This service will be permanently deleted."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, id: null })}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between">

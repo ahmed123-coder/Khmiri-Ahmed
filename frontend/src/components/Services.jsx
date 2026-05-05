@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../api";
 import colorSharp2 from "../assets/img/color-sharp2.png";
 
-export const Services = () => {
+export const Services = ({ title, subtitle }) => {
   const [services, setServices] = useState([]);
   const [hovered, setHovered] = useState(null);
 
@@ -20,8 +20,8 @@ export const Services = () => {
         <div className="row">
           <div className="col-12">
             <div className="service-bx">
-              <h2>My Services</h2>
-              <p>Here's what I can do for you — from design to deployment.</p>
+              <h2>{title || 'My Services'}</h2>
+              {subtitle && <p>{subtitle}</p>}
               <div className="service-grid">
                 {services.map((service) => (
                   <div

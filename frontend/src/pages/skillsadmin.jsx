@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 import { Zap, Plus, X, Pencil, Trash2 } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 
 const inp = 'w-full border rounded-lg px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500';
 const inpStyle = { background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' };
@@ -10,6 +12,7 @@ const SkillsAdmin = () => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: '', percentage: 50 });
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ open: false, id: null });
 
   useEffect(() => { fetchSkills(); }, []);
 
@@ -24,14 +27,19 @@ const SkillsAdmin = () => {
       if (editingId) await api.put(`/api/skill/${editingId}`, form);
       else await api.post('/api/skill', form);
       setEditingId(null); setForm({ name: '', percentage: 50 }); fetchSkills();
-    } catch (err) { console.error(err); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
     finally { setLoading(false); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this skill?')) return;
-    await api.delete(`/api/skill/${id}`);
-    fetchSkills();
+  const handleDelete = (id) => setConfirmModal({ open: true, id });
+
+  const confirmDelete = async () => {
+    const id = confirmModal.id;
+    setConfirmModal({ open: false, id: null });
+    try {
+      await api.delete(`/api/skill/${id}`);
+      fetchSkills();
+    } catch (err) { toast.error(err.response?.data?.message || 'Something went wrong'); }
   };
 
   const handleEdit = (skill) => {
@@ -47,7 +55,13 @@ const SkillsAdmin = () => {
   return (
     <div className="space-y-6 pb-10">
 
-      {/* Header */}
+      <ConfirmModal
+        open={confirmModal.open}
+        title="Delete Skill"
+        message="This skill will be permanently deleted."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, id: null })}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg,#AA367C,#4A2FBD)' }}>
@@ -86,14 +100,14 @@ const SkillsAdmin = () => {
               </span>
             </div>
             <div className="relative">
-              <input type="range" min="50" max="90" value={form.percentage}
+              <input type="range" min="0" max="100" value={form.percentage}
                 onChange={(e) => setForm({ ...form, percentage: Number(e.target.value) })}
                 className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                style={{ accentColor: '#7c3aed', background: `linear-gradient(to right, #AA367C ${((form.percentage - 50) / 40) * 100}%, #e2e8f0 ${((form.percentage - 50) / 40) * 100}%)` }}
+                style={{ accentColor: '#7c3aed', background: `linear-gradient(to right, #AA367C ${form.percentage}%, #e2e8f0 ${form.percentage}%)` }}
               />
             </div>
             <div className="flex justify-between text-xs" style={{ color: '#94a3b8' }}>
-              <span>50%</span><span>70%</span><span>90%</span>
+              <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
             </div>
           </div>
 

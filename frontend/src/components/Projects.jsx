@@ -7,7 +7,7 @@ import 'animate.css';
 import TrackVisibility from 'react-on-screen';
 import api from "../api";
 
-export const Projects = () => {
+export const Projects = ({ title, subtitle }) => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
@@ -31,7 +31,8 @@ export const Projects = () => {
             <TrackVisibility>
               {({ isVisible }) =>
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <h2>Projects</h2>
+                  <h2>{title || 'Projects'}</h2>
+                  {subtitle && <p style={{ color: '#B8B8B8', fontSize: '18px', letterSpacing: '0.8px', lineHeight: '1.5em', marginBottom: '30px' }}>{subtitle}</p>}
                   <Row>
                     {projects.map((project, index) => (
                       <ProjectCard
