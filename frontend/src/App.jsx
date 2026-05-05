@@ -10,6 +10,7 @@ import ManageSkills from "./pages/skillsadmin";
 import ManageSections from "./pages/sectionsadmin";
 import Register from "./pages/register";
 import Login from "./pages/login";
+import ProjectDetails from "./pages/ProjectDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/project/:slugOrId" element={<ProjectDetails />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         {/* Nested routes inside Admin — protected */}

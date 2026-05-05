@@ -651,3 +651,72 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   letter-spacing: 0.5px;
   margin-top: 20px;
 }
+
+/************ Project Details Css ************/
+.project-details-page {
+  background: #030303;
+  min-height: 100vh;
+}
+
+.project-detail-hero {
+  background: linear-gradient(180deg, rgba(18, 18, 18, 0) 0%, rgba(3, 3, 3, 1) 100%), url('./assets/img/banner-bg.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.back-link {
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.project-main-image {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.project-main-image img {
+  transition: transform 0.5s ease;
+}
+
+.project-main-image:hover img {
+  transform: scale(1.02);
+}
+
+.project-info-card {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.gallery-item img {
+  transition: all 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+.vvd-btn {
+  background-color: #fff;
+  color: #121212;
+  padding: 12px 24px;
+  font-weight: 700;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.vvd-btn:hover {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.video-container {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 991px) {
+  .project-info-card {
+    position: static !important;
+    margin-top: 2rem;
+  }
+}

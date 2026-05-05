@@ -40,6 +40,8 @@ export const Projects = ({ title, subtitle }) => {
                         title={project.title}
                         description={project.description}
                         imgUrl={project.image}
+                        slug={project.slug}
+                        id={project._id}
                       />
                     ))}
                   </Row>
