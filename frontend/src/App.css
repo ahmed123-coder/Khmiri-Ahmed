@@ -656,67 +656,89 @@ nav.navbar .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
 .project-details-page {
   background: #030303;
   min-height: 100vh;
+  color: #fff;
 }
 
 .project-detail-hero {
-  background: linear-gradient(180deg, rgba(18, 18, 18, 0) 0%, rgba(3, 3, 3, 1) 100%), url('./assets/img/banner-bg.png');
+  background: linear-gradient(180deg, rgba(3, 3, 3, 0.4) 0%, rgba(3, 3, 3, 1) 100%), url('./assets/img/banner-bg.png');
   background-size: cover;
   background-position: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.back-link {
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1.1rem;
+.breadcrumb-item + .breadcrumb-item::before {
+  display: none;
 }
 
 .project-main-image {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+  transform: translateY(0);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.project-main-image img {
-  transition: transform 0.5s ease;
+.project-main-image:hover {
+  box-shadow: 0 60px 120px -30px rgba(170, 54, 124, 0.15);
 }
 
-.project-main-image:hover img {
-  transform: scale(1.02);
+.project-card-glass {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
-.project-info-card {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+.project-sidebar-card {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
-.gallery-item img {
-  transition: all 0.3s ease;
+.gallery-thumb {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.gallery-item:hover img {
-  transform: scale(1.1);
+.gallery-thumb:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(170, 54, 124, 0.2);
 }
 
 .vvd-btn {
-  background-color: #fff;
-  color: #121212;
-  padding: 12px 24px;
+  background: linear-gradient(90.21deg, #AA367C -5.91%, #4A2FBD 111.58%);
+  color: #fff !important;
+  padding: 14px 30px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 50px;
   transition: all 0.3s ease;
   text-decoration: none;
+  border: 1px solid transparent;
 }
 
 .vvd-btn:hover {
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid #fff;
+  background: transparent;
+  border-color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .video-container {
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Lightbox overrides */
+.modal-backdrop.show {
+  opacity: 0.9 !important;
+  background-color: #030303 !important;
 }
 
 @media (max-width: 991px) {
-  .project-info-card {
-    position: static !important;
-    margin-top: 2rem;
+  .project-detail-hero h1 {
+    font-size: 2.5rem;
+  }
+  .project-sidebar-card {
+    margin-top: 3rem;
   }
 }

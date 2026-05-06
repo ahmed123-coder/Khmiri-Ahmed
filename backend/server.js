@@ -44,6 +44,7 @@ const routerSite = require("./routes/contentsite");
 const routerSections = require("./routes/sections");
 const contactRouter = require("./routes/contactRouter");
 const routerSkill = require("./routes/skill");
+const routerCategory = require("./routes/category");
 
 app.use("/api/user/login", loginLimiter);
 app.use("/api/contact", contactLimiter);
@@ -54,6 +55,7 @@ app.use("/api/site", routerSite);
 app.use("/api/site", routerSections);
 app.use("/api/contact", contactRouter);
 app.use("/api/skill", routerSkill);
+app.use("/api/category", routerCategory);
 
 // Health check or fallback
 app.get("/", (req, res) => {

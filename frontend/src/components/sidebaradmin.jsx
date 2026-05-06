@@ -11,6 +11,7 @@ const navItems = [
   { to: '/admin/ManageProjects', label: 'Projects', icon: FolderKanban },
   { to: '/admin/ManageService', label: 'Services', icon: Wrench },
   { to: '/admin/ManageSkills', label: 'Skills', icon: Zap },
+  { to: '/admin/ManageCategories', label: 'Categories', icon: Layers },
   { to: '/admin/ManageUsers', label: 'Users', icon: Users },
 ];
 

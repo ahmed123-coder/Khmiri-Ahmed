@@ -57,7 +57,8 @@ const destroyAsset = (url, resourceType = 'image') => {
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.find()
-      .select('title description image slug category date order tags link')
+      .select('title description image slug categories date order tags link')
+      .populate('categories')
       .sort({ order: 1 });
     res.json(projects);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -75,9 +76,9 @@ router.get('/categories', async (req, res) => {
 router.get('/:slugOrId', async (req, res) => {
   try {
     const { slugOrId } = req.params;
-    let project = await Project.findOne({ slug: slugOrId });
+    let project = await Project.findOne({ slug: slugOrId }).populate('categories');
     if (!project && /^[a-f\d]{24}$/i.test(slugOrId)) {
-      project = await Project.findById(slugOrId);
+      project = await Project.findById(slugOrId).populate('categories');
     }
     if (!project) return res.status(404).json({ message: 'Project not found' });
     res.json(project);
@@ -87,7 +88,7 @@ router.get('/:slugOrId', async (req, res) => {
 /* ─── POST /api/project  — create ───────────────────────────────────────── */
 router.post('/', verifyAdmin, uploadImages, async (req, res) => {
   try {
-    const { title, description, slug, category, date, tags, link, video } = req.body;
+    const { title, description, slug, categories, date, tags, link, video } = req.body;
 
     const coverFile = req.files?.image?.[0];
     if (!coverFile) return res.status(400).json({ message: 'Cover image is required' });
@@ -101,7 +102,7 @@ router.post('/', verifyAdmin, uploadImages, async (req, res) => {
       title,
       description,
       slug,
-      category: category || 'General',
+      categories: categories ? JSON.parse(categories) : [],
       date:     date     || Date.now(),
       order,
       image:  coverFile.path,
@@ -137,12 +138,12 @@ router.put('/:id', verifyAdmin, uploadImages, async (req, res) => {
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    const { title, description, slug, category, date, tags, link, video, keepImages } = req.body;
+    const { title, description, slug, categories, date, tags, link, video, keepImages } = req.body;
 
     if (title)       project.title       = title;
     if (description) project.description = description;
     if (slug)        project.slug        = slug;
-    if (category)    project.category    = category;
+    if (categories)   project.categories  = JSON.parse(categories);
     if (date)        project.date        = date;
     if (link !== undefined) project.link = link;
     if (video !== undefined) project.video = video;
