@@ -251,15 +251,45 @@ const ManageProjects = () => {
 
           <Field label="Video URL / Upload"><input placeholder="YouTube link" value={videoLink} onChange={(e) => setVideoLink(e.target.value)} className={inp} style={inpStyle} /><input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files[0])} className="mt-2 text-xs" /></Field>
 
-          <Field label="Gallery (Multiple)" col2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+          <Field label="Project Gallery (Multiple)" col2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              {/* Existing images from DB */}
               {existingGallery.map((url, idx) => (
-                <div key={`ex-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200"><img src={url} className="w-full h-full object-cover" alt="" /><button type="button" onClick={() => removeGalleryPreview(idx, true)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"><X size={10} /></button></div>
+                <div key={`ex-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                  <img src={url} className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all" alt="" />
+                  <div className="absolute top-1 left-1 bg-slate-800/60 backdrop-blur-sm text-white text-[7px] px-1.5 py-0.5 rounded uppercase font-bold">Existing</div>
+                  <button 
+                    type="button" 
+                    onClick={() => removeGalleryPreview(idx, true)} 
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-lg p-1.5 shadow-lg transition-transform hover:scale-110 active:scale-95"
+                    title="Remove Image"
+                  >
+                    <X size={14} strokeWidth={3} />
+                  </button>
+                </div>
               ))}
+
+              {/* New pending uploads */}
               {galleryPreviews.map((src, idx) => (
-                <div key={`new-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border-2 border-violet-200"><img src={src} className="w-full h-full object-cover" alt="" /><button type="button" onClick={() => removeGalleryPreview(idx)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"><X size={10} /></button></div>
+                <div key={`new-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border-2 border-violet-400 shadow-sm group">
+                  <img src={src} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute top-1 left-1 bg-violet-600 text-white text-[7px] px-1.5 py-0.5 rounded uppercase font-bold">New</div>
+                  <button 
+                    type="button" 
+                    onClick={() => removeGalleryPreview(idx)} 
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-lg p-1.5 shadow-lg transition-transform hover:scale-110 active:scale-95"
+                  >
+                    <X size={14} strokeWidth={3} />
+                  </button>
+                </div>
               ))}
-              <label className="flex flex-col items-center justify-center aspect-square rounded-lg cursor-pointer border-2 border-dashed border-slate-200 hover:border-violet-400 hover:bg-slate-50"><Plus className="text-slate-300" /><input type="file" multiple accept="image/*" onChange={handleGalleryChange} className="hidden" /></label>
+
+              {/* Add Button */}
+              <label className="flex flex-col items-center justify-center aspect-square rounded-xl cursor-pointer border-2 border-dashed border-slate-300 bg-white hover:border-violet-400 hover:bg-violet-50 transition-all group">
+                <Plus className="text-slate-400 group-hover:text-violet-500 group-hover:scale-110 transition-all" size={24} />
+                <span className="text-[10px] text-slate-400 mt-1 font-semibold group-hover:text-violet-500">Add More</span>
+                <input type="file" multiple accept="image/*" onChange={handleGalleryChange} className="hidden" />
+              </label>
             </div>
           </Field>
 
@@ -303,16 +333,41 @@ const ManageProjects = () => {
                     </div>
                   </div>
                   
-                  {/* Gallery View */}
-                  <div className="flex flex-wrap gap-2">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-violet-400 shadow-sm" title="Cover Image">
-                      <img src={project.image} className="w-full h-full object-cover" alt="" />
+                  {/* Media Gallery Overview */}
+                  <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ImageIcon size={14} className="text-slate-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Media Gallery ({1 + (project.images?.length || 0)})</span>
                     </div>
-                    {project.images?.map((img, i) => (
-                      <div key={i} className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200">
-                        <img src={img} className="w-full h-full object-cover" alt="" />
+                    <div className="flex flex-wrap gap-2">
+                      {/* Main Cover */}
+                      <div className="relative group">
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-amber-400 shadow-md ring-2 ring-amber-400/20">
+                          <img src={project.image} className="w-full h-full object-cover" alt="Cover" />
+                        </div>
+                        <div className="absolute -top-2 -left-2 bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-sm uppercase">Cover</div>
                       </div>
-                    ))}
+
+                      {/* Gallery Images */}
+                      {project.images?.map((img, i) => (
+                        <div key={i} className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 hover:border-violet-300 transition-colors">
+                          <img src={img} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" alt={`Gallery ${i}`} />
+                        </div>
+                      ))}
+
+                      {/* Video Indicator */}
+                      {project.video && (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center relative group cursor-help">
+                          <Video size={24} className="text-white/20 group-hover:text-purple-400 transition-colors" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                             <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                               <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1"></div>
+                             </div>
+                          </div>
+                          <div className="absolute bottom-1 right-1 bg-purple-600 text-white text-[7px] font-bold px-1 rounded">VIDEO</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

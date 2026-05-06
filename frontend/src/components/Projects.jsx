@@ -6,6 +6,7 @@ import colorSharp2 from "../assets/img/color-sharp2.png";
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
 import api from "../api";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Projects = ({ title, subtitle }) => {
   const [projects, setProjects] = useState([]);
@@ -40,44 +41,90 @@ export const Projects = ({ title, subtitle }) => {
             <TrackVisibility>
               {({ isVisible }) =>
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <h2>{title || 'Projects'}</h2>
-                  {subtitle && <p className="mb-8" style={{ color: '#B8B8B8', fontSize: '18px', letterSpacing: '0.8px', lineHeight: '1.5em' }}>{subtitle}</p>}
+                  <div className="text-center mb-12">
+                    <h2 className="text-5xl font-bold mb-4">{title || 'Projects'}</h2>
+                    {subtitle && <p className="text-white/50 max-w-2xl mx-auto text-lg leading-relaxed">{subtitle}</p>}
+                  </div>
                   
-                  {/* Category Filter Bar */}
-                  <div className="flex flex-wrap justify-center gap-3 mb-12">
-                    <button 
-                      onClick={() => setFilter('All')}
-                      className={`px-6 py-2 rounded-full border transition-all duration-300 ${filter === 'All' ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-transparent border-white/20 text-white/60 hover:border-white'}`}
-                    >
-                      All
-                    </button>
-                    {categories.map(cat => (
+                  {/* Premium Filter Bar */}
+                  <div className="flex justify-center mb-16">
+                    <div className="p-1.5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 flex flex-wrap gap-1">
                       <button 
-                        key={cat._id}
-                        onClick={() => setFilter(cat.name)}
-                        className={`px-6 py-2 rounded-full border transition-all duration-300 ${filter === cat.name ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-transparent border-white/20 text-white/60 hover:border-white'}`}
+                        onClick={() => setFilter('All')}
+                        className={`relative px-8 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 overflow-hidden ${
+                          filter === 'All' 
+                          ? 'text-white' 
+                          : 'text-white/40 hover:text-white/70'
+                        }`}
                       >
-                        {cat.name}
+                        {filter === 'All' && (
+                          <motion.div 
+                            layoutId="activeFilter"
+                            className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/20"
+                            style={{ borderRadius: '12px' }}
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                        <span className="relative z-10">All</span>
                       </button>
-                    ))}
+                      
+                      {categories.map(cat => (
+                        <button 
+                          key={cat._id}
+                          onClick={() => setFilter(cat.name)}
+                          className={`relative px-8 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 overflow-hidden ${
+                            filter === cat.name 
+                            ? 'text-white' 
+                            : 'text-white/40 hover:text-white/70'
+                          }`}
+                        >
+                          {filter === cat.name && (
+                            <motion.div 
+                              layoutId="activeFilter"
+                              className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/20"
+                              style={{ borderRadius: '12px' }}
+                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                          )}
+                          <span className="relative z-10">{cat.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <Row>
-                    {filteredProjects.map((project, index) => (
-                      <ProjectCard
-                        key={project._id || index}
-                        title={project.title}
-                        description={project.description}
-                        imgUrl={project.image}
-                        slug={project.slug}
-                        id={project._id}
-                      />
-                    ))}
+                  <Row className="g-4">
+                    <AnimatePresence mode="popLayout">
+                      {filteredProjects.map((project) => (
+                        <Col key={project._id} xs={12} sm={6} lg={4}>
+                          <motion.div
+                            layout
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ duration: 0.4 }}
+                          >
+                            <ProjectCard
+                              title={project.title}
+                              description={project.description}
+                              imgUrl={project.image}
+                              images={project.images} // Pass the rest of the images
+                              slug={project.slug}
+                              id={project._id}
+                            />
+                          </motion.div>
+                        </Col>
+                      ))}
+                    </AnimatePresence>
                   </Row>
+                  
                   {filteredProjects.length === 0 && (
-                    <div className="text-center py-20 text-white/30 text-xl">
-                      No projects found in this category.
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-20 text-white/20 text-xl font-light italic"
+                    >
+                      No masterpieces found in this category yet.
+                    </motion.div>
                   )}
                 </div>
               }
