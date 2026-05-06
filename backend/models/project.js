@@ -10,7 +10,7 @@ const projectSchema = new mongoose.Schema(
     order:       { type: Number, default: 0 },
 
     // Main cover image (Cloudinary URL)
-    image: { type: String, required: true },
+    image: { type: String, default: '' },
 
     // Extra gallery images (Cloudinary URLs)
     images: { type: [String], default: [] },

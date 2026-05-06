@@ -27,6 +27,7 @@ const ManageProjects = () => {
   
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [coverRemoved, setCoverRemoved] = useState(false);
   
   const [galleryFiles, setGalleryFiles] = useState([]);
   const [galleryPreviews, setGalleryPreviews] = useState([]);
@@ -104,6 +105,7 @@ const ManageProjects = () => {
     
     if (editingId) {
       formData.append('keepImages', JSON.stringify(existingGallery));
+      if (coverRemoved) formData.append('removeCover', 'true');
     }
     if (videoLink) formData.append('video', videoLink);
 
@@ -151,6 +153,7 @@ const ManageProjects = () => {
     
     setImagePreview(project.image || '');
     setImage(null);
+    setCoverRemoved(false);
     
     setExistingGallery(project.images || []);
     setGalleryFiles([]);
@@ -164,7 +167,7 @@ const ManageProjects = () => {
   const resetForm = () => {
     setTitle(''); setDescription(''); setSelectedCategories([]); setDate(new Date().toISOString().split('T')[0]);
     setTags(''); setLink(''); setSlug(''); setVideoLink('');
-    setImage(null); setImagePreview('');
+    setImage(null); setImagePreview(''); setCoverRemoved(false);
     setGalleryFiles([]); setGalleryPreviews([]); setExistingGallery([]);
     setVideoFile(null);
     setEditingId(null);
@@ -256,7 +259,7 @@ const ManageProjects = () => {
                     </div>
                     <button 
                       type="button" 
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setImage(null); setImagePreview(''); }} 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setImage(null); setImagePreview(''); setCoverRemoved(true); }} 
                       className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-xl p-2 shadow-xl transition-all z-20"
                       title="Remove Cover"
                     >

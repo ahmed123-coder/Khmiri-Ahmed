@@ -148,14 +148,25 @@ router.put('/:id', verifyAdmin, uploadImages, async (req, res) => {
     if (video !== undefined) project.video = video;
     if (tags)        project.tags        = JSON.parse(tags);
 
-    // Replace cover image
-    if (req.files?.image?.[0]) {
+    // 1. Handle Cover Image Deletion/Replacement
+    const removeCover = req.body.removeCover === 'true';
+    if (removeCover && project.image) {
       destroyAsset(project.image);
+      project.image = '';
+    }
+    
+    if (req.files?.image?.[0]) {
+      if (project.image) destroyAsset(project.image);
       project.image = req.files.image[0].path;
     }
 
-    // Gallery: keep existing URLs sent from client + add new uploads
-    const kept    = keepImages ? JSON.parse(keepImages) : (project.images || []);
+    // 2. Handle Gallery Deletion (Cloudinary Cleanup)
+    const kept = keepImages ? JSON.parse(keepImages) : (project.images || []);
+    
+    // Identify and destroy removed images
+    const removedImages = project.images.filter(img => !kept.includes(img));
+    removedImages.forEach(img => destroyAsset(img));
+
     const newImgs = (req.files?.images || []).map(f => f.path);
     project.images = [...kept, ...newImgs];
 
