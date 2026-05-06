@@ -155,7 +155,7 @@ router.put('/:id', verifyAdmin, uploadImages, async (req, res) => {
     }
 
     // Gallery: keep existing URLs sent from client + add new uploads
-    const kept    = keepImages ? JSON.parse(keepImages) : project.images;
+    const kept    = keepImages ? JSON.parse(keepImages) : (project.images || []);
     const newImgs = (req.files?.images || []).map(f => f.path);
     project.images = [...kept, ...newImgs];
 

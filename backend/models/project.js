@@ -13,13 +13,13 @@ const projectSchema = new mongoose.Schema(
     image: { type: String, required: true },
 
     // Extra gallery images (Cloudinary URLs)
-    images: [{ type: String }],
+    images: { type: [String], default: [] },
 
     // Optional video — Cloudinary URL or YouTube/Vimeo link
     video: { type: String, default: '' },
 
     // Tech stack tags  e.g. ["React", "Node.js"]
-    tags: [{ type: String }],
+    tags: { type: [String], default: [] },
 
     // External link (live demo / GitHub)
     link: { type: String, default: '' },
