@@ -57,7 +57,6 @@ const destroyAsset = (url, resourceType = 'image') => {
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.find()
-      .select('title description image slug categories date order tags link')
       .populate('categories')
       .sort({ order: 1 });
     res.json(projects);
@@ -67,7 +66,7 @@ router.get('/', async (req, res) => {
 /* ─── GET /api/project/categories ───────────────────────────────────────── */
 router.get('/categories', async (req, res) => {
   try {
-    const cats = await Project.distinct('category');
+    const cats = await Project.distinct('categories');
     res.json(cats.filter(Boolean));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
