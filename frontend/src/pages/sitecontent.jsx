@@ -222,7 +222,6 @@ const SiteManagementPage = () => {
                       {site.selected === true ? '● Active' : '○ Inactive'}
                     </span>
                   </div>
-                  <p className="text-xs mt-0.5 truncate max-w-sm" style={{ color: '#94a3b8' }}>{site.siteDescription}</p>
                   <p className="text-xs mt-0.5" style={{ color: '#cbd5e1' }}>{site.contactEmail}</p>
                 </div>
               </div>
